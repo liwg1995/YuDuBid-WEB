@@ -1,0 +1,94 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: yudu-bidkit-web
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:4000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: yudu-bidkit-api
+    environment:
+      API_PORT: 4000
+      WEB_ORIGIN: http://localhost:3000
+      DATABASE_URL: postgresql://yudu:yudu@postgres:5432/yudu_bidkit?schema=public
+      REDIS_URL: redis://redis:6379
+      DOCUMENT_WORKER_URL: http://document-worker:8100
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: yudu
+      MINIO_SECRET_KEY: yudu-bidkit
+      MINIO_BUCKET: bidkit
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  document-worker:
+    build:
+      context: .
+      dockerfile: services/document-worker/Dockerfile
+    container_name: yudu-bidkit-document-worker
+    ports:
+      - "8100:8100"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: yudu-bidkit-postgres
+    environment:
+      POSTGRES_DB: yudu_bidkit
+      POSTGRES_USER: yudu
+      POSTGRES_PASSWORD: yudu
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yudu -d yudu_bidkit"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: yudu-bidkit-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    container_name: yudu-bidkit-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: yudu
+      MINIO_ROOT_PASSWORD: yudu-bidkit
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

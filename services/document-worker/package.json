@@ -1,0 +1,12 @@
+{
+  "name": "@yudu-bidkit/document-worker",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "setup": "python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt",
+    "dev": ".venv/bin/python -m uvicorn src.main:app --host 127.0.0.1 --port 8100",
+    "build": "python3 -m py_compile src/main.py",
+    "lint": "python3 -m py_compile src/main.py",
+    "typecheck": "python3 -m py_compile src/main.py"
+  }
+}

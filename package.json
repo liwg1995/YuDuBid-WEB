@@ -1,0 +1,20 @@
+{
+  "name": "yudu-bidkit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "禹都投标AI助手 / YuDu_Bidkit",
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "check:web-css": "node scripts/check-web-css.mjs",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,css,yml,yaml}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}
