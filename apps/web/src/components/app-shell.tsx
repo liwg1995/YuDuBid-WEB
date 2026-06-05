@@ -13,8 +13,7 @@ import {
   Library,
   Menu,
   Settings,
-  ShieldAlert,
-  Sparkles
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -39,15 +38,26 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
+function BrandLogo({ size = "md" }: { size?: "sm" | "md" }) {
+  return (
+    <div
+      className={cn(
+        "shrink-0 overflow-hidden rounded-2xl bg-white/95 shadow-inner ring-1 ring-white/30",
+        size === "md" ? "h-11 w-11" : "h-9 w-9 rounded-xl"
+      )}
+    >
+      <img alt="禹都投标AI助手 Logo" className="h-full w-full object-cover" src="/images/yudubid-icon.png" />
+    </div>
+  );
+}
+
 export function AppShell({ active, children }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const nav = (
     <>
       <div className="mb-7 flex items-center gap-3 px-2">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 text-white shadow-inner ring-1 ring-white/20">
-          <Sparkles className="h-5 w-5" />
-        </div>
+        <BrandLogo />
         <div>
           <strong className="block text-sm">禹都投标AI助手</strong>
           <span className="text-xs text-blue-100/80">YuDu_Bidkit</span>
@@ -86,9 +96,7 @@ export function AppShell({ active, children }: AppShellProps) {
       <section className="min-w-0 px-4 py-4 md:px-7 md:py-6">
         <div className="mb-4 flex items-center justify-between rounded-2xl bg-blue-950 px-4 py-3 text-white shadow-lg shadow-blue-950/15 lg:hidden">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
-              <Sparkles className="h-4 w-4" />
-            </div>
+            <BrandLogo size="sm" />
             <div>
               <strong className="block text-sm">禹都投标AI助手</strong>
               <span className="text-xs text-blue-100/80">YuDu_Bidkit</span>
