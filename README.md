@@ -1,6 +1,8 @@
 # 禹都投标AI助手 / YuDu_Bidkit
 
-![禹都投标AI助手 Logo](apps/web/public/images/yudubid-icon.png)
+<p align="center">
+  <img src="apps/web/public/images/yudubid-icon.png" alt="禹都投标AI助手 Logo" width="120" />
+</p>
 
 禹都投标AI助手是一个面向招投标业务的 Web 版 AI 标书工作台，目标是把招标文件解析、技术标生成、企业知识库复用、废标项检查、标书查重、Word 导出和系统配置整合到一套可私有化部署的工作流中。
 
