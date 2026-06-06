@@ -41,8 +41,12 @@ const capabilityLabels: Record<string, string> = {
   image: "生图"
 };
 
-const textProviderIds = ["openai", "deepseek", "dashscope", "zhipu", "moonshot", "volcengine", "ollama", "custom"];
-const imageProviderIds = ["openai", "dashscope", "zhipu", "volcengine", "hunyuan", "qianfan", "google-ai-studio", "custom"];
+const textProviderIds = aiProviderCatalog
+  .filter((provider) => (provider.capabilities as readonly string[]).includes("text"))
+  .map((provider) => provider.id);
+const imageProviderIds = aiProviderCatalog
+  .filter((provider) => (provider.capabilities as readonly string[]).includes("image"))
+  .map((provider) => provider.id);
 
 interface ModelConfig {
   providerId: string;
@@ -188,12 +192,27 @@ function ToggleField({
   );
 }
 
-function ProviderCard({ providerId, active = false }: { providerId: string; active?: boolean }) {
+function ProviderCard({
+  providerId,
+  active = false,
+  onSelect
+}: {
+  providerId: string;
+  active?: boolean;
+  onSelect?: (providerId: string) => void;
+}) {
   const provider = aiProviderCatalog.find((item) => item.id === providerId);
   if (!provider) return null;
 
   return (
-    <article className={cn("rounded-lg border border-border bg-white p-4", active && "border-primary bg-sky-50")}>
+    <button
+      className={cn(
+        "rounded-lg border border-border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-sky-50 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        active && "border-primary bg-sky-50"
+      )}
+      onClick={() => onSelect?.(providerId)}
+      type="button"
+    >
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
           <strong className="text-sm">{provider.name}</strong>
@@ -209,7 +228,7 @@ function ProviderCard({ providerId, active = false }: { providerId: string; acti
         ))}
       </div>
       <p className="line-clamp-1 text-xs text-muted-foreground">{provider.defaultBaseUrl || "按你的服务商接口填写 Base URL"}</p>
-    </article>
+    </button>
   );
 }
 
@@ -252,16 +271,24 @@ export default function SettingsPage() {
   function selectProvider(kind: "textModel" | "imageModel", name: string) {
     const provider = aiProviderCatalog.find((item) => item.name === name);
     if (!provider) return;
+    selectProviderById(kind, provider.id);
+  }
+
+  function selectProviderById(kind: "textModel" | "imageModel", providerId: string) {
+    const provider = aiProviderCatalog.find((item) => item.id === providerId);
+    if (!provider) return;
     const capability = kind === "imageModel" ? "image" : "text";
     const model = defaultModel(provider.id, capability);
     updateModel(kind, {
       providerId: provider.id,
       providerName: provider.name,
       baseUrl: provider.defaultBaseUrl,
-      model
+      model,
+      status: "untested"
     });
     if (kind === "textModel") setTextModels(providerTextModels(provider.id));
     if (kind === "imageModel") setImageModels(providerImageModels(provider.id));
+    setMessage(`已切换到 ${provider.name}，请填写 API Key 后保存或检测。`);
   }
 
   function updateStorage(patch: Partial<StorageConfig>) {
@@ -422,7 +449,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-5">
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {textProviderIds.map((id) => (
-                  <ProviderCard active={id === textModel?.providerId} key={id} providerId={id} />
+                  <ProviderCard active={id === textModel?.providerId} key={id} onSelect={(providerId) => selectProviderById("textModel", providerId)} providerId={id} />
                 ))}
               </div>
               {textModel && (
@@ -470,7 +497,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-5">
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {imageProviderIds.map((id) => (
-                  <ProviderCard active={id === imageModel?.providerId} key={id} providerId={id} />
+                  <ProviderCard active={id === imageModel?.providerId} key={id} onSelect={(providerId) => selectProviderById("imageModel", providerId)} providerId={id} />
                 ))}
               </div>
               {imageModel && (
