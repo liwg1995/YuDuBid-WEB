@@ -50,7 +50,7 @@ export default function BusinessBidPage() {
               </div>
               <h2 className="text-2xl font-semibold text-slate-950">商务标能力正在排期建设</h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                参考 OpenBidKit_Yibiao 的模块边界，当前优先完善招标解析、技术方案、知识库、废标项检查、查重和 Word 导出。商务标后续再接入商务响应矩阵、合同偏离表和报价辅助，不先做半成品生成。
+                当前优先完善招标解析、技术方案、知识库、废标项检查、查重和 Word 导出。商务标后续再接入商务响应矩阵、合同偏离表和报价辅助，不先做半成品生成。
               </p>
             </div>
           </div>

@@ -113,9 +113,8 @@ pnpm check:web-css
 
 > 注意：开发过程中如需检查前端样式，优先使用 `pnpm check:web-css`。避免在 Next.js dev server 运行时频繁执行生产构建，以免临时构建产物影响本地热更新页面。
 
-## 参考项目
+## 资源来源
 
-- [OpenBidKit_Yibiao](https://github.com/liwg1995/OpenBidKit_Yibiao)：业务流程参考，核心代码位于其 `client/` 目录。
 - [YuduBid](https://github.com/liwg1995/YuduBid)：Logo 资源来源。
 
 ## 版本管理
