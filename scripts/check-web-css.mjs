@@ -5,11 +5,21 @@ const routes = (
 )
   .split(",")
   .filter(Boolean);
+const timeoutMs = Number(process.env.WEB_CSS_TIMEOUT_MS || 8000);
 
 async function readText(url) {
-  const response = await fetch(url);
-  const text = await response.text();
-  return { response, text };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    const text = await response.text();
+    return { response, text };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`${url} 请求超时或失败：${message}`);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 for (const route of routes) {

@@ -39,6 +39,11 @@ export class TasksProcessor extends WorkerHost {
       return;
     }
 
+    if (job.name === "risk_check" || job.name === "duplicate_check") {
+      await this.processCheckTask(job);
+      return;
+    }
+
     await this.prisma.aiTask.update({
       where: { id: job.data.taskId },
       data: {
@@ -146,6 +151,43 @@ export class TasksProcessor extends WorkerHost {
         status: "skipped",
         error: error instanceof Error ? error.message : String(error)
       };
+    }
+  }
+
+  private async processCheckTask(job: Job<BidkitTaskJob>) {
+    const apiPort = this.config.get<string>("API_PORT", "4000");
+    const endpoint = job.name === "risk_check" ? "risk-check/run-now" : "duplicate-check/run-now";
+    await job.updateProgress(70);
+
+    try {
+      const response = await fetch(`http://localhost:${apiPort}/api/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...job.data.payload,
+          projectId: job.data.projectId || job.data.payload.projectId,
+          taskId: job.data.taskId
+        })
+      });
+
+      if (!response.ok) {
+        const detail = await response.text();
+        await this.markTaskFailed(job.data.taskId, "", `检查任务执行失败：${response.status} ${detail.slice(0, 500)}`);
+        return;
+      }
+
+      const result = (await response.json()) as Record<string, unknown>;
+      await job.updateProgress(100);
+      await this.prisma.aiTask.update({
+        where: { id: job.data.taskId },
+        data: {
+          status: "success",
+          progress: 100,
+          result: result as unknown as Prisma.InputJsonObject
+        }
+      });
+    } catch (error) {
+      await this.markTaskFailed(job.data.taskId, "", error instanceof Error ? error.message : String(error));
     }
   }
 

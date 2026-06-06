@@ -20,6 +20,8 @@ model Project {
   tasks       AiTask[]
   analyses    TenderAnalysis[]
   requirements TenderRequirement[]
+  checkRuns   CheckRun[]
+  checkFindings CheckFinding[]
 }
 
 model Document {
@@ -130,6 +132,53 @@ model AiTask {
   error       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model CheckRun {
+  id          String   @id @default(cuid())
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId      String?
+  type        String
+  status      String   @default("ready")
+  title       String
+  summary     String?
+  input       Json?
+  result      Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  findings    CheckFinding[]
+
+  @@index([projectId])
+  @@index([type])
+  @@index([taskId])
+}
+
+model CheckFinding {
+  id          String   @id @default(cuid())
+  runId       String
+  run         CheckRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type        String
+  category    String
+  severity    String   @default("medium")
+  title       String
+  summary     String?
+  requirement String?
+  evidence    String?
+  suggestion  String?
+  sourceDocumentId String?
+  metadata    Json?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([runId])
+  @@index([projectId])
+  @@index([type])
+  @@index([category])
+  @@index([severity])
 }
 
 model SystemConfig {
